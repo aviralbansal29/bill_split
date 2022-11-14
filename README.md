@@ -18,3 +18,6 @@ Clone of Splitwise
   - POSTGRES_PASSWORD=<DB password>
   - POSTGRES_DB=<DB name>
   - POSTGRES_HOST=database
+
+## Swagger
+After strting server, docs can be found here http://localhost:9000/swagger/index.html#/
