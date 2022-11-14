@@ -1,0 +1,271 @@
+basePath: /
+definitions:
+  requestSerializers.CreateGroupForm:
+    properties:
+      members:
+        items:
+          type: string
+        type: array
+      name:
+        type: string
+    required:
+    - members
+    - name
+    type: object
+  requestSerializers.CreateTransactionForm:
+    properties:
+      amount:
+        type: integer
+      group_id:
+        type: integer
+      name:
+        type: string
+      split_map:
+        items:
+          $ref: '#/definitions/requestSerializers.splitMapFormat'
+        type: array
+      user_id:
+        type: integer
+    required:
+    - amount
+    - group_id
+    - name
+    - split_map
+    - user_id
+    type: object
+  requestSerializers.CreateUserForm:
+    properties:
+      name:
+        type: string
+      phone_number:
+        type: string
+    required:
+    - name
+    - phone_number
+    type: object
+  requestSerializers.splitMapFormat:
+    properties:
+      percent:
+        maximum: 100
+        minimum: 0
+        type: integer
+      user_id:
+        type: integer
+    type: object
+  responseDeserializers.DeserializedGroup:
+    properties:
+      is_settled:
+        type: boolean
+      name:
+        type: string
+    type: object
+  responseDeserializers.DeserializedTransaction:
+    properties:
+      amount:
+        type: integer
+      group_name:
+        type: string
+      name:
+        type: string
+    type: object
+  responseDeserializers.DeserializedTransactionList:
+    properties:
+      amount:
+        type: integer
+      date:
+        type: string
+      expense:
+        type: string
+      group:
+        type: string
+      pending:
+        type: string
+    type: object
+  responseDeserializers.DeserializedUserFormat:
+    properties:
+      active_groups:
+        items:
+          $ref: '#/definitions/responseDeserializers.DeserializedGroup'
+        type: array
+      name:
+        type: string
+      phone_number:
+        type: string
+      settled_groups:
+        items:
+          $ref: '#/definitions/responseDeserializers.DeserializedGroup'
+        type: array
+    type: object
+info:
+  contact: {}
+  title: Splitwise clone Service
+  version: "1.0"
+paths:
+  /groups:
+    post:
+      consumes:
+      - application/json
+      description: Creates new group and associated user groups
+      parameters:
+      - description: Body
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/requestSerializers.CreateGroupForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Creates Group
+      tags:
+      - groups
+  /groups/{group_id}/add-user/{user_id}:
+    post:
+      consumes:
+      - application/json
+      description: Adds user to specified group
+      parameters:
+      - description: Group ID
+        in: path
+        name: group_id
+        required: true
+        type: integer
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Add User
+      tags:
+      - groups
+  /transactions:
+    get:
+      consumes:
+      - application/json
+      description: Gets list of transactions
+      parameters:
+      - description: User ID
+        in: query
+        name: user_id
+        required: true
+        type: integer
+      - description: Group ID
+        in: query
+        name: group_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responseDeserializers.DeserializedTransactionList'
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Get Transactions
+      tags:
+      - transactions
+    post:
+      consumes:
+      - application/json
+      description: Creates new Transaction and related user transactions
+      parameters:
+      - description: Body
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/requestSerializers.CreateTransactionForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responseDeserializers.DeserializedTransaction'
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Creates Transaction
+      tags:
+      - transactions
+  /users:
+    post:
+      consumes:
+      - application/json
+      description: Creates new user and returns created user
+      parameters:
+      - description: Body
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/requestSerializers.CreateUserForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responseDeserializers.DeserializedUserFormat'
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Creates User
+      tags:
+      - users
+  /users/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves User data
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Retrieves User
+      tags:
+      - users
+swagger: "2.0"
